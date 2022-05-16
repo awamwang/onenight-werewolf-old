@@ -16,7 +16,7 @@
     "axios": "^0.19.2",
     "babel-polyfill": "^6.23.0",
     "co": "^4.6.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "moment": "^2.29.2",
     "setimmediate": "^1.0.5",
     "vue": "^2.3.4",
