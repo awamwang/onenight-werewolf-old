@@ -1,7 +1,19 @@
 // 化身幽灵Doppelganger,狼人Werewolf,爪牙Minion,守夜人Mason,预言家Seer,强盗Robber,捣蛋鬼Troublemaker,
 // 酒鬼Drunk,失眠者Insomniac,皮匠Tanner,猎人Hunter,村民Villager
-const _ = require('lodash')
 import Player from './player'
+
+function isEmpty (value) {
+  return !value || Object.keys(value).length === 0
+}
+
+function shuffle (list) {
+  const result = [...list]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
 
 export const LEFT_ROLE_COUNT = 3
 export const GameStatusEnum = {
@@ -75,7 +87,7 @@ export default class Game {
 
   get finalRoleNames () {
     let names = []
-    if (_.isEmpty(this.finalPlayers)) {
+    if (isEmpty(this.finalPlayers)) {
       return names
     }
 
@@ -127,7 +139,7 @@ export default class Game {
   }
 
   getPlayers () {
-    let roleNames = _.shuffle(this.roleNames)
+    let roleNames = shuffle(this.roleNames)
     for (let position = this.playerCount + LEFT_ROLE_COUNT; position >= 1; position--) {
       this.players[position] = new Player(roleNames[position - 1], position, this)
       this.finalPlayers[position] = new Player(roleNames[position - 1], position, this)
@@ -147,7 +159,7 @@ export default class Game {
   startOperate2 () {
     this.finishOperate1()
 
-    if (!_.includes(this.roleNames, '失眠者')) {
+    if (!this.roleNames.includes('失眠者')) {
       this.status = GameStatusEnum.ARGUE
       return
     }
@@ -225,7 +237,7 @@ export default class Game {
       let result
 
       if (killedPosition <= this.playerCount) {
-        if (_.includes([
+        if ([
           '爪牙',
           '预言家',
           '强盗',
@@ -234,21 +246,21 @@ export default class Game {
           '酒鬼',
           '村民',
           '守卫'
-        ], killedRoleName)) {
+        ].includes(killedRoleName)) {
           result = `${killedPosition}玩家的角色是${killedRoleName}，狼人胜利`
         }
-        if (_.includes([
+        if ([
           '狼人'
-        ], killedRoleName)) {
+        ].includes(killedRoleName)) {
           result = `${killedPosition}玩家的角色是${killedRoleName}，平民胜利`
         }
-        if (_.includes([
+        if ([
           '皮匠'
-        ], killedRoleName)) {
+        ].includes(killedRoleName)) {
           result = `${killedPosition}玩家的角色是${killedRoleName}，皮匠胜利`
         }
       } else {
-        if (_.includes(this.finalRoleNames.slice(0, -3), '狼人')) {
+        if (this.finalRoleNames.slice(0, -3).includes('狼人')) {
           result = `场上有狼人，狼人胜利`
         } else {
           result = `狼人都在底牌中，平民胜利`

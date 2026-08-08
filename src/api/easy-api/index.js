@@ -1,5 +1,4 @@
 import axios from 'axios'
-import co from 'co'
 
 import loadingFunc from './components/loading'
 
@@ -12,6 +11,12 @@ import configAxios from './config-axios.js'
 
 const DEFAULT_AXIOS_CONFIG = configAxios(axios)
 const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
+
+async function runQueue (tasks) {
+  for (const task of tasks) {
+    await task
+  }
+}
 
 export default class EasyApi {
   constructor (options = {}) {
@@ -59,13 +64,7 @@ export default class EasyApi {
         return utils.promisifyPreInterceptor(interceptor, axiosConfig, options)
       })
 
-      let gen = function* () {
-        for (let i = 0, len = promisifiedPreInterceptors.length; i < len; i++) {
-          yield promisifiedPreInterceptors[i]
-        }
-      }
-
-      return co(gen).then(() => {
+      return runQueue(promisifiedPreInterceptors).then(() => {
         return Promise.resolve()
       })
     }
@@ -77,13 +76,7 @@ export default class EasyApi {
         return utils.promisifyInterceptor(interceptor, axiosConfig, response, options)
       })
 
-      let gen = function* () {
-        for (let i = 0, len = promisifiedInterceptors.length; i < len; i++) {
-          yield promisifiedInterceptors[i]
-        }
-      }
-
-      return co(gen).then(() => {
+      return runQueue(promisifiedInterceptors).then(() => {
         return Promise.resolve(response)
       })
     }

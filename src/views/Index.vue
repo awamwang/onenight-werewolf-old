@@ -7,28 +7,38 @@
     <div class="head-placeholder"></div>
     <div class="config" v-if="game.status === GameStatusEnum.CONFIG">
       <h2>一夜终极狼人杀</h2>
-      <group>
-        <x-input title="游戏人数"
-                 type="number"
-                 text-align="right"
-                 required
-                 should-toast-error
-                 v-model="game.playerCount"></x-input>
-        <x-input title="操作时间"
-                 type="number"
-                 text-align="right"
-                 required
-                 v-model="game.operateTimeout"></x-input>
-        <x-textarea title="角色" v-model="rolesString" autosize></x-textarea>
-      </group>
+      <van-cell-group inset>
+        <van-field
+          v-model="playerCount"
+          type="digit"
+          label="游戏人数"
+          input-align="right"
+          required
+        />
+        <van-field
+          v-model="operateTimeout"
+          type="digit"
+          label="操作时间"
+          input-align="right"
+          required
+        />
+        <van-field
+          v-model="rolesString"
+          rows="3"
+          autosize
+          label="角色"
+          type="textarea"
+          input-align="right"
+        />
+      </van-cell-group>
       <footer>
-        <x-button type="primary" @click.native="confirmConfig">确定</x-button>
+        <van-button type="primary" block @click="confirmConfig">确定</van-button>
       </footer>
     </div>
     <div class="rule" v-if="game.status === GameStatusEnum.RULE">
       <div v-html="game.rule" class="text"></div>
       <footer>
-        <x-button type="primary" @click.native="confirmRule">知道了</x-button>
+        <van-button type="primary" block @click="confirmRule">知道了</van-button>
       </footer>
     </div>
     <div class="operate" v-if="game.status === GameStatusEnum.OPERATE1">
@@ -52,22 +62,28 @@
                        <!--:max=2></checklist>-->
           </div>
           <div v-if="game.curPlayer.role.roleName === '预言家'">
-            <checklist :title="game.curPlayer.role.operateGuide"
-                       :options="game.curPlayer.role.operateTargets"
-                       v-model="operateArgs"
-                       :max=2></checklist>
+            <target-checklist
+              :title="game.curPlayer.role.operateGuide"
+              :options="game.curPlayer.role.operateTargets"
+              v-model="operateArgs"
+              :max="2"
+            />
           </div>
           <div v-if="game.curPlayer.role.roleName === '强盗'">
-            <checklist :title="game.curPlayer.role.operateGuide"
-                       :options="game.curPlayer.role.operateTargets"
-                       v-model="operateArgs"
-                       :max=1></checklist>
+            <target-checklist
+              :title="game.curPlayer.role.operateGuide"
+              :options="game.curPlayer.role.operateTargets"
+              v-model="operateArgs"
+              :max="1"
+            />
           </div>
           <div v-if="game.curPlayer.role.roleName === '捣蛋鬼'">
-            <checklist :title="game.curPlayer.role.operateGuide"
-                       :options="game.curPlayer.role.operateTargets"
-                       v-model="operateArgs"
-                       :max=2></checklist>
+            <target-checklist
+              :title="game.curPlayer.role.operateGuide"
+              :options="game.curPlayer.role.operateTargets"
+              v-model="operateArgs"
+              :max="2"
+            />
           </div>
           <div v-if="game.curPlayer.role.roleName === '失眠者'">
             点击“完成操作”查看结果
@@ -77,10 +93,12 @@
                        <!--:max=2></checklist>-->
           </div>
           <div v-if="game.curPlayer.role.roleName === '酒鬼'">
-            <checklist :title="game.curPlayer.role.operateGuide"
-                       :options="game.curPlayer.role.operateTargets"
-                       v-model="operateArgs"
-                       :max=2></checklist>
+            <target-checklist
+              :title="game.curPlayer.role.operateGuide"
+              :options="game.curPlayer.role.operateTargets"
+              v-model="operateArgs"
+              :max="2"
+            />
           </div>
           <div v-if="game.curPlayer.role.roleName === '村民'">
             点击“完成操作”查看结果
@@ -103,9 +121,9 @@
       </div>
       <div class="footer-placeholder"></div>
       <footer>
-        <x-button type="primary" @click.native="startOperate1" v-show="operateStatus === 'stage_1'">开始操作</x-button>
-        <x-button type="primary" @click.native="finishOperate1" v-show="operateStatus === 'stage_2'">完成操作</x-button>
-        <x-button type="primary" @click.native="nextOperate1" v-show="operateStatus === 'stage_3'">下一位</x-button>
+        <van-button type="primary" block @click="startOperate1" v-show="operateStatus === 'stage_1'">开始操作</van-button>
+        <van-button type="primary" block @click="finishOperate1" v-show="operateStatus === 'stage_2'">完成操作</van-button>
+        <van-button type="primary" block @click="nextOperate1" v-show="operateStatus === 'stage_3'">下一位</van-button>
       </footer>
     </div>
     <div class="operate" v-if="game.status === GameStatusEnum.OPERATE2">
@@ -117,38 +135,40 @@
         </div>
       </div>
       <footer>
-        <x-button type="primary" @click.native="finishOperate2" v-show="operateStatus === 'stage_1'">查看结果</x-button>
-        <x-button type="primary" @click.native="nextOperate2" v-show="operateStatus === 'stage_3'">下一位</x-button>
+        <van-button type="primary" block @click="finishOperate2" v-show="operateStatus === 'stage_1'">查看结果</van-button>
+        <van-button type="primary" block @click="nextOperate2" v-show="operateStatus === 'stage_3'">下一位</van-button>
       </footer>
     </div>
     <div class="argue" v-if="game.status === GameStatusEnum.ARGUE">
       <h2>请开始你们的表演</h2>
-      <checklist title="选择投票对象"
-                 :options="game.getKillTargets()"
-                 v-model="operateArgs"
-                 :max=1></checklist>
+      <target-checklist
+        title="选择投票对象"
+        :options="game.getKillTargets()"
+        v-model="operateArgs"
+        :max="1"
+      />
       <div class="footer-placeholder"></div>
       <footer>
-        <x-button type="primary" @click.native="finishArgue">投票</x-button>
+        <van-button type="primary" block @click="finishArgue">投票</van-button>
       </footer>
     </div>
     <div class="result" v-if="game.status === GameStatusEnum.RESULT">
       <h2>游戏结束</h2>
       <div class="operate-result" v-html="operateResult"></div>
-      <group title="当前玩家角色情况为">
-        <cell :title="key + '号'"
-              :value="player.role.roleName"
-              primary="content"
-              value-align="right"
-              v-for="(player, key) in game.finalPlayers"
-              :key="key"></cell>
-      </group>
+      <van-cell-group inset title="当前玩家角色情况为">
+        <van-cell
+          v-for="(player, key) in game.finalPlayers"
+          :key="key"
+          :title="key + '号'"
+          :value="player.role.roleName"
+        />
+      </van-cell-group>
       <ol class="log">
-        <li v-for="(log, key) in game.operateLog" :key="" v-html="`${key}号：${log.roleName}, ${log.operate}`"></li>
+        <li v-for="(log, key) in game.operateLog" :key="key" v-html="`${key}号：${log.roleName}, ${log.operate}`"></li>
       </ol>
       <div class="footer-placeholder"></div>
       <footer>
-        <x-button type="primary" @click.native="restart">重新开始</x-button>
+        <van-button type="primary" block @click="restart">重新开始</van-button>
       </footer>
     </div>
   </div>
@@ -156,20 +176,15 @@
 
 <script>
   // import Api from 'api'
-  import { Group, Cell, XInput, XButton, XTextarea, Checklist } from 'vux'
   import { default as Game, GameStatusEnum } from '../libs/onenight-werewolf/game'
+  import TargetChecklist from '../components/TargetChecklist.vue'
 
   const DEFAULT_PLAYER_COUNT = 8
   const DEFAULT_OPERATE_TIMEOUT = 20
 
   export default {
     components: {
-      Group,
-      Cell,
-      XInput,
-      XButton,
-      XTextarea,
-      Checklist
+      TargetChecklist
     },
     data () {
       return {
@@ -182,6 +197,24 @@
         operateResult: ''
       }
     },
+    computed: {
+      playerCount: {
+        get () {
+          return String(this.game.playerCount ?? '')
+        },
+        set (value) {
+          this.game.playerCount = value
+        }
+      },
+      operateTimeout: {
+        get () {
+          return String(this.game.operateTimeout ?? '')
+        },
+        set (value) {
+          this.game.operateTimeout = value
+        }
+      }
+    },
     watch: {
       'game.defaultRoleNames' (value) {
         if (!this.rolesString.length) {
@@ -191,7 +224,6 @@
       'game.curPosition' () {
       }
     },
-    computed: {},
     created () {
       this.game.playerCount = this.game.playerCount
     },
@@ -303,10 +335,6 @@
       font-weight: normal;
     }
 
-    .weui-btn {
-      margin-top: 0;
-    }
-
     .rule {
       .text {
         padding: 15px;
@@ -353,6 +381,10 @@
     .footer-placeholder {
       width: 100%;
       height: 42px;
+    }
+
+    footer {
+      padding: 0 16px 16px;
     }
 
   }

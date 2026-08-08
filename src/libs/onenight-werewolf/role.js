@@ -1,6 +1,8 @@
-const _ = require('lodash')
-
 import * as wolfGame from './game'
+
+function randomInt (min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 
 const NightNight = `漫漫长夜。。。`
 
@@ -69,7 +71,7 @@ export default class Role {
         return () => {
           let otherWolfs = this.game.findOtherPlayers(position, '狼人')
           if (otherWolfs.length === 0) {
-            let randomIndex = _.random(1, wolfGame.LEFT_ROLE_COUNT)
+            let randomIndex = randomInt(1, wolfGame.LEFT_ROLE_COUNT)
             let randomRole = this.game.players[this.game.playerCount + randomIndex].role
             this.game.operateLog[position] = {roleName: this.game.players[position].role.roleName, operate: `底牌${randomRole.roleName}`}
             return `底牌中有一个角色是${randomRole.roleName}`
@@ -123,7 +125,7 @@ export default class Role {
           if (list.length > 1) {
             throw new Error('最多抢夺1张底牌')
           }
-          if (_.includes(list, position)) {
+          if (list.includes(position)) {
             throw new Error('不能抢夺自己')
           }
 
@@ -140,7 +142,7 @@ export default class Role {
           if (list.length !== 2) {
             throw new Error('需要2个操作目标')
           }
-          if (_.includes(list, position)) {
+          if (list.includes(position)) {
             throw new Error('不能交换自己')
           }
 

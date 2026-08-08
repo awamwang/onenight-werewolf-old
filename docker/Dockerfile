@@ -1,24 +1,18 @@
-FROM node:10 as build
-
-ENV GIT_REPO=https://github.com/keepgoingwm/onenight-werewolf-old.git
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# clone project
-RUN git clone ${GIT_REPO} my-project
+COPY package.json package-lock.json* ./
+RUN npm install
 
-# install
-RUN cd my-project \
-  && npm install \
-  && cp env.example.js env.js
+COPY . .
+RUN cp env.example.js env.js \
+  && npm run build
 
-##################
-# 
-##################
-FROM gcr.io/distroless/nodejs
-COPY --from=build /app /app
+FROM nginx:1.27-alpine
 
-# entrypoint
-WORKDIR /app/my-project
-EXPOSE 8083
-CMD ["build/dev-server.js"]
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
