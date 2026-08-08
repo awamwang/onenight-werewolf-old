@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
+    "start": "npm run dev",
     "build": "node build/build.js",
     "build-stats": "webpack-bundle-size-analyzer profile/packStats.json",
     "build-test": "node build/build-test.js",
